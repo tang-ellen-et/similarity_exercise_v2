@@ -1,0 +1,10 @@
+*.class
+*.log
+*.dll
+*.lib
+*.so
+*.so.*
+
+.idea/
+target/
+src/test/resources/output/

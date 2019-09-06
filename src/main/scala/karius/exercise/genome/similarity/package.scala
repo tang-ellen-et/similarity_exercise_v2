@@ -8,5 +8,5 @@ package object similarity {
 
   }
 
-  val IUPAC_CODES = Set("R", "Y", "S", "W", "K", "M", "B", "D", "H", "V", "N", ".", "-") //should be discarded from analysis during pre-process step
+  val IUPAC_CODES = Set('R', 'Y', 'S', 'W', 'K', 'M', 'B', 'D', 'H', 'V', 'N', '.', '-') //should be discarded from analysis during pre-process step
 }

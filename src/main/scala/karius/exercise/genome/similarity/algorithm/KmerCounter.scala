@@ -3,21 +3,22 @@ import karius.exercise.genome.similarity.results.KmerCountResult
 
 /*
    this is the class to perform Kmer counting algorithm
-   assuming that all invalid charactors are thrown out ahead of time
+   assuming that all invalid characters are thrown out ahead of time
  */
 case class KmerCounter(genoIndex:Int, kmerLength: Int, sequence: String) {
 
   def result: KmerCountResult = {
-    val r = Map.empty[String, Int]
+    val r = collection.mutable.Map.empty[String, Int]
 
     for (ss <- segments) {
-      r.keySet.contains(ss) match {
-        case true  => r(ss) += 1
-        case false => r(ss) = 1
-      }
+        val element: Option[Int] = r.get(ss)
+        element match {
+          case None => r+= ss-> 1
+          case Some(v)=> r.update(ss, v+1)
+        }
     }
 
-    KmerCountResult(kmerLength, r)
+    KmerCountResult(kmerLength, r.toMap)
   }
 
   private lazy val segments = this.sequence.grouped(kmerLength).toSeq

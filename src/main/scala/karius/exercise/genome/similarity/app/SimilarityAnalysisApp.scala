@@ -1,7 +1,7 @@
 package karius.exercise.genome.similarity.app
 
 import karius.exercise.genome.similarity.SimilarityAnalysisProcessor
-import moodys.analytics.cra.util.Logging
+import karius.exercise.genome.similarity.utils.Logging
 import org.apache.spark.sql.SparkSession
 
 object SimilarityAnalysisApp extends Logging {

@@ -1,7 +1,9 @@
 package karius.exercise.genome.similarity.io
+
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.{ SparkSession}
+import org.apache.spark.sql.{Dataset, SparkSession}
 import karius.exercise.genome.similarity._
+
 /*
 Handle FASTA input file reading
 1. skip the first line
@@ -10,8 +12,9 @@ Handle FASTA input file reading
 
  */
 object FASTAReader extends Serializable with Logging {
-  def read(path: String)(implicit spark: SparkSession)= {
+  def read(path: String)(implicit spark: SparkSession) = {
     import spark.implicits._
-    spark.sqlContext.read.option("header", "false").text(path).as[String].filter(s=>s.contains(IUPAC_CODES))
+    val ds: Dataset[String] = spark.sqlContext.read.option( "header", "false" ).text( path ).as[String]
+    ds.filter( (s: String) => s.forall( IUPAC_CODES.contains( _ ) ) )
   }
 }
