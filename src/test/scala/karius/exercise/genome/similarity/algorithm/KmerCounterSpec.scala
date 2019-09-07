@@ -2,7 +2,7 @@ package karius.exercise.genome.similarity.algorithm
 
 import org.scalatest.{FlatSpec, FunSuite}
 
-class KmerCouterSpec extends FlatSpec {
+class KmerCounterSpec extends FlatSpec {
 
   "KmerCounter" should "generate Kmer count when kmerLength less than sequence length" in {
     val r = KmerCounter( 1, 3, "ATGG" ).result

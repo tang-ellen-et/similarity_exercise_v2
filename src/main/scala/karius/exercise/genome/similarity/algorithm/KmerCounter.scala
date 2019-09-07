@@ -21,7 +21,7 @@ case class KmerCounter(genoIndex: Int, kmerLength: Int, sequence: String) {
       }
     }
 
-    KmerCountResult( kmerLength, r.toMap )
+    KmerCountResult( genoIndex, r.toMap )
   }
 
   //  private lazy val segments = this.sequence.grouped(kmerLength).toSeq
@@ -40,7 +40,7 @@ case object KmerCounter {
 
   def countAll(genoIndex: Int, kmerLength: Int, sequenceList: Seq[String]): KmerCountResult = {
     val resultList = sequenceList.map( s => (KmerCounter( genoIndex, kmerLength, s ).result) )
-    resultList.foldLeft( KmerCountResult( kmerLength, Map.empty[String, Int] ) )( (s, r) => s.combine( r ).get )
+    resultList.foldLeft( KmerCountResult( genoIndex, Map.empty[String, Int] ) )( (s, r) => s.combine( r ).get )
   }
 
 }
