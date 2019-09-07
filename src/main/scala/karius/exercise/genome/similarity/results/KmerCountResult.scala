@@ -26,3 +26,15 @@ case class KmerCountResult(genoIndex: Int, result: Map[String, Int]) {
     }
   }
 }
+
+
+case object KmerCountResult {
+
+  def combineAll(start: KmerCountResult, others: Seq[KmerCountResult]): KmerCountResult = others.isEmpty match {
+    case true => start
+    case false => {
+      val r = start.combine( others.head ).get
+      combineAll( r, others.tail )
+    }
+  }
+}

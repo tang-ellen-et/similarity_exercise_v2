@@ -13,20 +13,20 @@ case class KmerCounter(genoIndex: Int, kmerLength: Int, sequence: String) {
     val r = collection.mutable.Map.empty[String, Int]
 
     for (ss <- segments) {
-      val element: Option[Int] = r.get(ss)
+      val element: Option[Int] = r.get( ss )
       element match {
-        case None    => r += ss -> 1
-        case Some(v) => r.update(ss, v + 1)
+        case None => r += ss -> 1
+        case Some( v ) => r.update( ss, v + 1 )
       }
     }
 
-    KmerCountResult(genoIndex, r.toMap)
+    KmerCountResult( genoIndex, r.toMap )
   }
 
   private lazy val segments = (kmerLength > sequence.size) match {
-    case true => Seq(sequence)
+    case true => Seq( sequence )
     case false => {
-      for { i <- 0 to (sequence.size - kmerLength) } yield sequence.substring(i, i + kmerLength)
+      for {i <- 0 to (sequence.size - kmerLength)} yield sequence.substring( i, i + kmerLength )
     }
   }
 
@@ -34,9 +34,22 @@ case class KmerCounter(genoIndex: Int, kmerLength: Int, sequence: String) {
 
 case object KmerCounter {
 
-  def countAll(genoIndex: Int, kmerLength: Int, sequenceList: Seq[String]): KmerCountResult = {
-    val resultList = sequenceList.map(s => (KmerCounter(genoIndex, kmerLength, s).result))
-    resultList.foldLeft(KmerCountResult(genoIndex, Map.empty[String, Int]))((s, r) => s.combine(r).get)
+  def countAll_v1(genoIndex: Int, kmerLength: Int, sequenceList: Seq[String]): KmerCountResult = {
+    val resultList = sequenceList.map( s => (KmerCounter( genoIndex, kmerLength, s ).result) )
+    println( f"@@@@@@@@@@@@  resultList #${genoIndex} ${resultList.size} " )
+
+    val r1 = resultList.reduce( (x, y) => x.combine( y ).get )
+    println( f"@@@@@@@@@@@@  combine all #${genoIndex} completed" )
+    r1
   }
+
+  def countAll(genoIndex: Int, kmerLength: Int, sequenceList: Seq[String]): KmerCountResult = {
+    val resultList = sequenceList.map( s => (KmerCounter( genoIndex, kmerLength, s ).result) )
+    println( f"@@@@@@@@@@@@  resultList #${genoIndex} ${resultList.size} " )
+    val r1 = KmerCountResult.combineAll( resultList.head, resultList.tail )
+    println( f"@@@@@@@@@@@@  combine all #${genoIndex} completed" )
+    r1
+  }
+
 
 }

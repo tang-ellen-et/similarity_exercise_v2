@@ -22,11 +22,14 @@ object SimilarityAnalysisProcessor extends Serializable with Logging {
       //the idea is to read the input directory and change the partition path as something below
       //then we can compute analysis per partition in parallel
 
-      Seq(KmerCounter.countAll(genoIndex, parameters.kmer, seq.map(_._1))).iterator
+      Seq(KmerCounter.countAll_v1(genoIndex, parameters.kmer, seq.map(_._1))).iterator
     })
 
+    logInfo("@@@@@@@@@@@@@@@@@@collect results from partition")
     //this will be done at master node given this is final aggregation reduce mode
     val totalResults: Array[KmerCountResult] = results.collect()
+
+    logInfo(f"@@@@@@@@@@@@@@@@@@total KmerCountResult: ${totalResults.size}")
 
     val reportMatrix =
       for {
@@ -37,8 +40,11 @@ object SimilarityAnalysisProcessor extends Serializable with Logging {
                          totalResults(j).genoIndex,
                          totalResults(i).isComparable(totalResults(j), parameters.threshold))
 
+    logInfo(f"@@@@@@@@@@@@@@@@@@reportMatrix: ${reportMatrix.size}")
+
     GenomeSimilarityResultWriter.writeGenomeIndexReference(parameters.outputPath, Seq.empty[GnomeIndexReference])
     GenomeSimilarityResultWriter.writeSimilaryReportMatrix(parameters.outputPath, reportMatrix)
 
+    logInfo("@@@@@@@@@@@@@@@@@@Analysis completed!")
   }
 }
