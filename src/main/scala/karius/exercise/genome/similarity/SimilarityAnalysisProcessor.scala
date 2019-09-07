@@ -14,10 +14,15 @@ object SimilarityAnalysisProcessor extends Serializable with Logging {
     val ds = FASTAReader.read(parameters.path)
     val results: Dataset[KmerCountResult] = ds.mapPartitions((iterator) => {
       val genoIndex = TaskContext.getPartitionId()
+      val seq = iterator.toSeq
+      val name = seq.head._2
+
+      logInfo(f"@@@@@@@@@@@@@@@@@@${genoIndex}: ${name}")
 
       //the idea is to read the input directory and change the partition path as something below
       //then we can compute analysis per partition in parallel
-      Seq(KmerCounter.countAll(genoIndex, parameters.kmer, iterator.toSeq)).iterator
+
+      Seq(KmerCounter.countAll(genoIndex, parameters.kmer, seq.map(_._1))).iterator
     })
 
     //this will be done at master node given this is final aggregation reduce mode

@@ -14,7 +14,8 @@ Handle FASTA input file reading
 object FASTAReader extends Serializable with Logging {
   def read(path: String)(implicit spark: SparkSession) = {
     import spark.implicits._
-    val ds: Dataset[String] = spark.sqlContext.read.option( "header", "false" ).text( path ).as[String]
-    ds.filter( (s: String) => s.forall( IUPAC_CODES.contains( _ ) ) )
+    val ds: Dataset[(String, String)] = spark.sqlContext.read.option( "header", "False" ).text( path ).as[(String, String)]
+    val filtered = ds.filter( (s: (String, String)) => (!s._1.startsWith(">") ) &&  s._1.forall( !IUPAC_CODES.contains( _ ) ) )
+    filtered
   }
 }
