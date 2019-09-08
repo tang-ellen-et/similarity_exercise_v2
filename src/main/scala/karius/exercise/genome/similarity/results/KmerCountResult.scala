@@ -17,16 +17,41 @@ case class KmerCountResult(genoIndex: Int, result: Map[String, Int]) {
     }
   }
 
+  @deprecated("not the best performance", "2019-09-08")
+  def combine_v1(other: KmerCountResult): Option[KmerCountResult] = this.genoIndex.equals( other.genoIndex ) match {
+    case false => None
+    case true => {
+      println (f"keysize: ${this.result.keySet.size}  other: ${other.result.keySet.size}" )
+      val merged = (this.result.keySet ++ other.result.keySet).map( k => (k, this.result.getOrElse( k, 0 ) + other.result.getOrElse( k, 0 )) ).toMap
+      println (f"--merged--" )
+      Some( KmerCountResult( this.genoIndex, merged ) )
+    }
+  }
+
+
   def combine(other: KmerCountResult): Option[KmerCountResult] = this.genoIndex.equals( other.genoIndex ) match {
     case false => None
     case true => {
-      val list = this.result.toList ++ other.result.toList
-      val merged = list.groupBy( _._1 ).map { case (k, v) => k -> v.map( _._2 ).sum }
+      println (f"keysize: ${this.result.keySet.size}  other: ${other.result.keySet.size}" )
+     // val merged = (this.result.keySet ++ other.result.keySet).map( k => (k, this.result.getOrElse( k, 0 ) + other.result.getOrElse( k, 0 )) ).toMap
+      val merged = CombineMaps.combine(this.result, other.result)
+      println (f"--merged--" )
       Some( KmerCountResult( this.genoIndex, merged ) )
+
     }
   }
 }
 
+
+object CombineMaps {
+  type Counts = Map[String,Int]
+  def combine(x: Counts, y: Counts): Counts = {
+    val x0 = x.withDefaultValue(0)
+    val y0 = y.withDefaultValue(0)
+    val keys = x.keySet.union(y.keySet)
+    keys.map{ k => (k -> (x0(k) + y0(k))) }.toMap
+  }
+}
 
 case object KmerCountResult {
 

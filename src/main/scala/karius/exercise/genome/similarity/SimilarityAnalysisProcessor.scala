@@ -33,14 +33,16 @@ object SimilarityAnalysisProcessor extends Serializable with Logging {
 
     val reportMatrix =
       for {
-        i <- 0 to totalResults.size;
-        j <- i to totalResults.size
-      } yield
-        GenomeSimilarity(totalResults(i).genoIndex,
-                         totalResults(j).genoIndex,
-                         totalResults(i).isComparable(totalResults(j), parameters.threshold))
+        i <- 0 to totalResults.size-1;
+        j <- i+1 to totalResults.size-1
+      } yield {
+        logInfo(f"@@@@@@@@@@@@@@@@ i: ${i} j: ${j}")
+        GenomeSimilarity( totalResults( i ).genoIndex,
+          totalResults( j ).genoIndex,
+          totalResults( i ).isComparable( totalResults( j ), parameters.threshold ) )
+      }
 
-    logInfo(f"@@@@@@@@@@@@@@@@@@reportMatrix: ${reportMatrix.size}")
+    logInfo(f"@@@@@@@@@@@@@@@@@@reportMatrix: ${reportMatrix}")
 
     GenomeSimilarityResultWriter.writeGenomeIndexReference(parameters.outputPath, Seq.empty[GnomeIndexReference])
     GenomeSimilarityResultWriter.writeSimilaryReportMatrix(parameters.outputPath, reportMatrix)
