@@ -1,6 +1,6 @@
 package karius.exercise.genome.similarity.app
 
-import karius.exercise.genome.similarity.SimilarityAnalysisProcessor
+import karius.exercise.genome.similarity.{SimilarityAnalysisProcessorV2}
 import karius.exercise.genome.similarity.utils.Logging
 import org.apache.spark.sql.SparkSession
 
@@ -15,7 +15,7 @@ object SimilarityAnalysisApp extends Logging {
 
     if (parameters.isDefined) {
       // Start budget calculation
-      SimilarityAnalysisProcessor.exec(parameters.get)(sparkSession)
+      SimilarityAnalysisProcessorV2.exec(parameters.get)(sparkSession)
       logInfo("Analysis completed.")
     } else
       // Cancel the execution
