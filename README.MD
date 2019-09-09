@@ -1,12 +1,12 @@
 # Karius Geno Similarity Analsysis Spark Application #
 
-# [Business requirement](https://github.com/tangellen/similarity_exercise/tree/master/requirements)
+## [Business requirement](https://github.com/tangellen/similarity_exercise/tree/master/requirements)
 
-# Technical design and considerations
+## Technical design and considerations
 It is a large dataset processing problem and we select Apache Spark™ as our underline distributed analytic engine.
 
 
-## Basic flow
+### Basic flow
 
 Input data
 - fasta gnome sequence input dataset are paritioned by organism name
@@ -20,7 +20,7 @@ Output
 - generate and write out similarity comparison matrix reports for all organisms.
 
 
-## Sample input data files
+### Sample input data files
 
 The sample input files can be found in:
     src\test\resources\
