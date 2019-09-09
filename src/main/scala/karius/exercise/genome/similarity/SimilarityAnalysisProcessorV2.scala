@@ -8,6 +8,20 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 
+/*
+The basic idea and calculation flow is outlined below:
+- each fasta file is a sequence inputs partitioned by organism name
+- read each file line as a below flat data structure
+                case class FlatKmerCountResult(name: String, kmerKey: String, count: Long)
+- Use spark dataset operation groupBy (name + kmer) and sum count by (name+key) to reduce to an aggregated FlatKmerCountResult
+- Use spark dataset groupBy oto group all kmerCount result for a given organism
+- map resulted group dataet to KmerCountResult object
+- collect KmerCountResults for all organism List[(name, KmerCounts)]
+- calculate the diff ratio and then compare with threshold and produce FlatGenomeSimilarity
+            case class FlatGenomeSimilarity(nameOne: String, nameTwo: String, diffRatio: Double, isComparable: Boolean)
+
+Push down aggregation to spark layer and gain much improved performance
+*/
 object SimilarityAnalysisProcessorV2 extends Serializable with Logging {
 
   def exec(parameters: SimilarityParameters)(implicit spark: SparkSession) = {
@@ -33,15 +47,14 @@ object SimilarityAnalysisProcessorV2 extends Serializable with Logging {
     val groupedDs: KeyValueGroupedDataset[String, FlatKmerCountResult] = flatKmerCountDs.groupByKey(row => row.name)
 
     val rs = groupedDs.mapGroups((n, it) => {
-      val map: Map[String, Long]    = it.map(fr => (fr.kmerKey -> fr.count)).toMap
-      val combined: KmerCountResult = KmerCountResult(map)
-      n -> combined
+      val map = it.map(fr => (fr.kmerKey -> fr.count)).toMap
+      n ->  KmerCountResult(map)
     })
 
     //    rs.show(10)
     rs.printSchema()
 
-    val rsCollected = rs.collect()
+    val rsCollected: Array[(String, KmerCountResult)] = rs.collect()
 
     val reportMatrix: Seq[FlatGenomeSimilarity] =
       for {
@@ -49,7 +62,7 @@ object SimilarityAnalysisProcessorV2 extends Serializable with Logging {
         j <- i + 1 to rsCollected.size - 1
       } yield {
         logInfo(f"@@@@@@@@@@@@@@@@ i: ${i} j: ${j}")
-        val diffRatio = rsCollected(i)._2.calculateDiffRatioByKmerAndCounts(rsCollected(j)._2)
+        val diffRatio = rsCollected(i)._2.calculateDiffRatioByKmerSet(rsCollected(j)._2)
         FlatGenomeSimilarity(rsCollected(i)._1,
                              rsCollected(j)._1,
                              diffRatio,

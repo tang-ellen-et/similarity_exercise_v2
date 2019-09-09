@@ -17,6 +17,9 @@ case class KmerCountResult(kemerCounts: Map[String, Long]) {
     }
   }
 
+  /*
+  should use this strategy as multiplicity won't be taken into consideration for the first pass
+   */
   def calculateDiffRatioByKmerSet(other: KmerCountResult) = {
      val intersetKmers =  this.kemerCounts.keySet intersect( other.kemerCounts.keySet)
      val unionKmers =this.kemerCounts.keySet union( other.kemerCounts.keySet )
